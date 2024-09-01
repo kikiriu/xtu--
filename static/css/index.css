@@ -1,0 +1,286 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+body,
+div,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+form,
+input,
+textarea,
+p {
+    margin: 0px;
+    padding: 0px;
+    font-size: 13px;
+    font-family: Tahoma;
+}
+.header {
+    background-color: #009688;
+    padding: 18px;
+    margin-bottom: 30px;
+}
+
+.h-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* flex-direction: row; 默认*/
+    color: #fff;
+}
+
+.h-title {
+    font-size: 22px;
+    color: #fff;
+    text-decoration: none;
+    /* 没有此语句会有下划线 */
+}
+
+.titleAndimage {
+    margin-left: 30px;
+}
+
+.titleAndimage img {
+    margin-left: 10px;
+}
+/* 导航 */
+.nav {
+    margin-left: 20px;
+}
+
+.nav a {
+    text-decoration: none;
+    margin-right: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+.nav-user a {
+    color: #fff;
+    /* 白色 */
+    text-decoration: none;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+#nav-section{
+    margin-left: 200px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.search {
+    background-color: #f2f2f2;
+    padding: 5px;
+    border-radius: 5px;
+    /* 圆角 */
+}
+
+.search input {
+    width: 30px;
+    height: 30px;
+}
+
+.search i {
+    color: #999;
+}
+
+.search input[type="text"] {
+    border: none;
+    background-color: transparent;
+    width: 200px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.avatar {
+    max-width: 90%;/* 图像在其容器内按比例缩放 */
+    height: auto;  /* 保持图像的纵横比 防止变形 */
+    cursor: pointer;/* 鼠标光标设置为手型 */
+    border-radius: 25%;
+    transition: transform 0.2s; /* 添加一个平滑的过渡效果，使图像在交互时更加流畅。 */
+    display: block; 
+    margin: 0 auto; 
+}
+.avatar:hover {
+    transform: scale(1.05); /* 鼠标悬停时放大头像 */
+}
+#avatarPreview {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.card-title {
+    text-align: center;
+}
+
+/* 加载动画 */
+#mask {
+    position: fixed;
+    top: 0;
+    /* 相对浏览器固定位置 */
+    display: block;
+    background-color: #413d3d;
+    width: 100vw;
+    /* 和屏幕对齐 */
+    height: 100vh;
+    z-index: 999;
+    /* 优先级默认0  设置为最高级 放在最顶层 */
+    text-align: center;
+    /* 让所有内容文本居中 */
+}
+
+#mask #loading {
+    /* display: none;隐藏 */
+    margin: 40vh auto;
+    /* transform: scale(2);放大 */
+}
+
+#mask .tiplo {
+    /* 必须要留空格 */
+    display: block;
+    width: fit-content;
+    margin: 30px auto;
+    color: #fff;
+}
+
+
+/* 帖子列表 */
+.lis {
+    list-style: none;
+    /* 否则前面会有小点 */
+    margin: 0;
+    border-top: 1px dashed #ddd;
+}
+
+.lis li {
+    background-color: #fff;
+    border: 1px solid #e6e6e6;
+
+
+    border-bottom: 1px dashed #ddd;
+    padding: 15px 10px;
+
+    /* margin-bottom: 0px; */
+}
+
+
+.lis-avatar img {
+    height: auto;  /* 保持图像的纵横比 防止变形 */
+    width: 75px;
+    float: left;
+    /* 一个浮动元素会尽量向左或向右移动，直到它的外边缘碰到包含框或另一个浮动框的边框为止。 */
+    /* 浮动元素之后的元素将围绕它。 */
+    /* height: 55px; */
+    /* border-radius: 50%; */
+}
+
+.subject {
+    float: left; 
+    margin-left: 10px;
+}
+
+.subject h2 {
+    display: inline;
+}
+.subject .titleWrap a{
+    font-size: 15px;
+    color: #105cb6;
+}
+.subject p {
+    color: #999;
+    padding: 10px 0 0 0;
+}
+.count{
+    color: #999;
+    line-height: 18px;
+    text-align: center;
+}
+.count p {
+    background: none repeat scroll 0 0 #f4f4f4;
+    border-radius: 3px;
+    display: block;
+    float: right;
+    height: 36px;
+    margin: 0 0 0 10px;
+    overflow: hidden;
+    padding: 4px 0;
+    width: 54px;
+}
+/* 分页 */
+.pages_wrap {
+    margin: 12px 0 0 0;
+}
+
+.pages a {
+    background: url(../image/core_bg.png) #f8f8f8;
+    border-color: #c9c9c9 #bdbdbd #b0b0b0;
+    border-image: none;
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    color: #666666;
+    display: inline-block;
+    line-height: 13px;
+    margin-right: 3px;
+    padding: 6px 10px;
+    text-decoration: none;
+    vertical-align: top;
+}
+
+.btn-custom {
+	background-color: white; /* 设置按钮背景色为白色 */
+	color: black; /* 设置按钮文字颜色为黑色 */
+	border: 1px solid #007bff; /* 设置按钮边框颜色为蓝色或你希望的颜色 */
+}
+
+.btn-custom:hover {
+	background-color: #f8f9fa; /* 设置悬停时按钮背景色 */
+	color: black; /* 设置悬停时按钮文字颜色 */
+	border-color: #007bff; /* 设置悬停时按钮边框颜色 */
+}
+
+/* .tip {
+    font-size: 16px;
+    font-weight: bold;
+    粗体
+    display: inline;
+    margin-left: 55;
+}
+
+.tip a {
+    color: #333;
+    text-decoration: none;
+}
+
+.tip-stick {
+    background-color: #FF5722;
+    color: #fff;
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-size: 12px;
+    margin-left: 5px;
+} */

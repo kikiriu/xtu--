@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>校园失物招领</title>
+	<style>
+		body {
+			background-color: #1cbb9b;
+		}
+
+		.login-box {
+			position: relative;
+			margin: 0px auto 130px;
+			width: 500px;
+			height: 330px;
+			background-color: #fff;
+			padding: 10px;
+			border-radius: 3px;
+			/* 针对WebKit引擎 */
+			-webkit-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.33);
+			/* 针对Gecko引擎 */
+			-moz-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.33);
+			/* 标准的CSS属性，用于支持现代浏览器 */
+			box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.33);
+		}
+
+		.lb-header {
+			position: relative;
+			color: #00415d;
+			margin: 5px 5px 10px 5px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #eee;
+			text-align: center;
+			height: 28px;
+		}
+
+		.lb-header a {
+			margin: 0 25px;
+			padding: 0 20px;
+			text-decoration: none;
+			color: #666;
+			font-weight: bold;
+			font-size: 15px;
+			/* all 表示所有CSS属性都会应用过渡效果，0.1s 表示过渡的持续时间为0.1秒，linear 表示过渡的时间曲线为线性 */
+			-webkit-transition: all 0.1s linear;
+			-moz-transition: all 0.1s linear;
+			transition: all 0.1s linear;
+		}
+
+		.lb-header .active {
+			color: #029f5b;
+			font-size: 18px;
+		}
+
+		.usr-login,
+		.usr-signup {
+			position: relative;
+			float: left;
+			width: 100%;
+			height: auto;
+			margin-top: 20px;
+			text-align: center;
+		}
+
+		.u-form-group {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		.u-form-group input[type="usr"],
+		.u-form-group input[type="password"] {
+			width: calc(50% - 22px);
+			height: 45px;
+			/* 移除元素的外部轮廓 */
+			outline: none;
+			border: 1px solid #ddd;
+			padding: 0 10px;
+			border-radius: 2px;
+			color: #333;
+			font-size: 0.8rem;
+			-webkit-transition: all 0.1s linear;
+			-moz-transition: all 0.1s linear;
+			transition: all 0.1s linear;
+		}
+
+		.u-form-group input:focus {
+			border-color: #358efb;
+		}
+
+		.u-form-group button {
+			width: 50%;
+			background-color: #1CB94E;
+			border: none;
+			outline: none;
+			color: #fff;
+			font-size: 14px;
+			font-weight: normal;
+			padding: 14px 0;
+			border-radius: 2px;
+			text-transform: uppercase;
+		}
+
+		#footer {
+			color: #333;
+			font-size: 13px;
+			font-family: Tahoma;
+			width: 960px;
+			margin: 0 auto;
+			border-top: 1px solid #d3d3d3;
+			text-align: center;
+			padding: 20px 0;
+			margin-top: 30px;
+		}
+
+		#welcome {
+			box-sizing: border-box;
+			margin-top: 80px;
+			text-align: center;
+			color: #FFFFFF;
+			font-weight: 500;
+			font-size: 50px;
+
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script><!-- 导入jQuery插件库 -->
+</head>
+
+<body>
+	<script>
+		$(document).ready(function () {
+			$(".usr-signup").hide();
+
+			$("#signup-box-link").click(function () {
+				$(".usr-login").fadeOut(100); //淡出持续100ms
+				$(".usr-signup").delay(100).fadeIn(100);
+				$("#login-box-link").removeClass("active");//从class中移除active类
+				$("#signup-box-link").addClass("active");
+			});
+
+			$("#login-box-link").click(function () {
+				$(".usr-login").delay(100).fadeIn(100);
+				$(".usr-signup").fadeOut(100);
+				$("#login-box-link").addClass("active");
+				$("#signup-box-link").removeClass("active");
+			});
+		});
+	</script>
+	<h1 id="welcome">Welcome</h1>
+	<div class="login-box">
+		<div class="lb-header">
+			<a href="#" class="active" id="login-box-link">登录</a>
+			<a href="#" id="signup-box-link">注册</a>
+		</div>
+		<form class="usr-login" action="../aips/login.php" method="get">
+			<div class="u-form-group">
+				<input type="usr" name="l-username" placeholder="用户名" />
+			</div>
+			<div class="u-form-group">
+				<input type="password" name="l-password" placeholder="密码" />
+			</div>
+			<div class="u-form-group">
+				<button>登录</button>
+			</div>
+		</form>
+		<form class="usr-signup" action="../controls/useradd.php" method="get">
+			<div class="u-form-group">
+				<input type="usr" name="username" placeholder="用户名" />
+			</div>
+			<div class="u-form-group">
+				<input type="password" name="password" placeholder="密码" />
+			</div>
+			<div class="u-form-group">
+				<input type="password" name="password2" placeholder="确认密码" />
+			</div>
+			<div class="u-form-group">
+				<button>注册</button>
+			</div>
+		</form>
+	</div>
+
+	<div id="footer" class="auto">
+		<div class="bottom">
+			<a>校园失物招领系统</a>
+		</div>
+		<div class="copyright">Powered by lyc ©2023</div>
+	</div>
+</body>
+
+</html>

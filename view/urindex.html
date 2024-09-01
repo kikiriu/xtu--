@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>校园失物招领系统</title>
+    <link rel="stylesheet" href="../static/pkg/bootstrap4.6.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/index.css">
+    <script src="../static/pkg/jquery3.7.0/jquery-3.7.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../static/pkg/bootstrap4.6.1/js/bootstrap.min.js"></script>
+    <script src="../static/pkg/popper/popper.min.js"></script>
+    <script src="../static/js/index.js"></script>
+    <script src="../static/pkg/js-cookie/js.cookie.min.js"></script>
+    <script src="../static/pkg/compressor/compressor.min.js"></script>
+    <!-- 压缩 -->
+    <script src="../static/js/person.js"></script> <!-- 显示Modal -->
+</head>
+
+<body>
+    <div class="header">
+        <div class="h-main">
+            <div class="titleAndimage">
+                <a class="h-title" id="home"> 校园失物招领
+                    <img src="../static/assets/images/首页.png" alt="首页" width="30" height="30"></a>
+            </div>
+            <form action="/controls/search.php ?>" class="search" method="get">
+                <input id="sea" name="search" autocomplete="off" placeholder="寻觅遗失的线索" type="text"
+                    style="outline: none;">
+
+                <!-- <input type="hidden" name="searcher" id="searcher" value=""> -->
+                <!-- value属性只能接受静态的文本内容作为值。 -->
+                <!-- 去掉输入框获得焦点时的默认黑色边框 -->
+                <button type="submit" style="border: none;">
+                    <img src="../static/assets/images/搜索.png" alt="搜索" width="20" height="20">
+                </button>
+                <!-- 不显示历史选项 -->
+            </form>
+            <!-- <script>searcher = document.querySelector('#searcher');
+                searcher.value = Cookies.get("username");
+            </script> -->
+            <!-- <?php echo $_COOKIE["username"];?> -->
+            <div class="nav-user">
+				<button type="button" class="btn btn btn-custom" id="messageButton">
+				    查看消息
+				</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn btn-custom" data-toggle="modal" data-target="#ModalPublish">
+                    我要发贴
+                </button>&nbsp;&nbsp;&nbsp;
+				<div class="nav">
+				    <a href="/controls/logout.php" target="_parent">退出</a>
+				</div>
+				<img src="../static/assets/images/登出.png" alt="some_text" width="35" height="35">
+				<script>
+				        document.getElementById("messageButton").onclick = function() {
+				            window.location.href = "../view/message.php";
+				        };
+				    </script>
+            </div>
+        </div>
+    </div>
+
+    <?php
+    $username = $_COOKIE['username'];
+    $banned="";
+    // 查询用户的banned属性
+    $sql = "SELECT * FROM user WHERE username = '$username'";
+    $result1 = $conn->query($sql);
+    $row1 = $result1->fetch_assoc();
+
+    $banned = $row1["banned"];
+    if ($banned == 1) {
+        // 用户被封禁，显示封禁提示
+        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+        echo '<strong>您已经被封禁!</strong>';
+        echo '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>';
+        echo '</div>';
+    }
+    mysqli_free_result($result1);
+    ?>
+
+    <ul class="nav" id="nav-section">
+        <li class="nav-item">
+            <a class="nav-link" href="/controls/urindex.php?section=0">全部</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/controls/urindex.php?section=1">失物招领</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/controls/urindex.php?section=2">寻物启事</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/controls/urindex.php?section=3">其它</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/controls/urindex.php?section=4">收藏</a>
+        </li>
+    </ul>
+
+    <div class="container">
+        <!-- 用户帖子待改 需要数据 头像/标题/内容/时间/用户名/身份 -->
+        <!-- Person.func.getAvatar(); -->
+        <div class="row">
+            <div class="col-8">
+                <ul class="lis">
+                    <!-- 发帖内容展示  php动态数据循环 li-->
+                    <?php 
+                    $index=0;                   
+                    while( $row = $result->fetch_assoc() ) : 
+                    $index++;  
+                    //使用索引来使得保证每个帖子的ID不一样
+                    $avatarId = "pub-avatar-" . $index;
+                    $username = $row['pub_owner'];
+                     ?>
+                    <script>
+                        var username = "<?php echo $username; ?>";
+                        axios.get("/controls/getAvatar.php?username=" + username).then(function (res) {
+                            let avatar = document.querySelector("#<?php echo $avatarId; ?>")
+                            avatar.src = res.data.avatar
+                            console.log(avatar)
+                        })</script>
+                    <li>
+                        <div class="lis-avatar">
+                            <a href="#">
+                                <img id="<?php echo $avatarId; ?>" src="">
+                            </a>
+                        </div>
+                        <div class="subject">
+                            <div class="titleWrap">
+                                <?php
+                                    if ($row['is_top']==1)
+                                    echo '<span class="badge badge-danger">置顶贴</span>';
+                                    if($row['status']=='生效中')
+                                    echo'<span class="badge badge-pill badge-success">生效中</span>';
+                                    else if($row['status']=='已完结')
+                                    echo'<span class="badge badge-pill badge-dark">已完结</span>';
+
+                                    echo '<a href="#">['.$row["section"].']</a>&nbsp;&nbsp;';
+                                ?>
+
+                                <h2><a href="./detail.php?pub_id=<?php echo $row['pub_id']; ?>">
+                                        <?php echo $row['pub_title']; ?>
+                                    </a>
+                                </h2>
+                            </div>
+                            <p>
+                                楼主：
+                                <?php 
+                                $sql2 = "SELECT * FROM user WHERE username = '{$row['pub_owner']}'";
+                                //在双引号字符串中引用数组的值，需要使用花括号将数组引用括起来
+                                $result2 = $conn->query($sql2);
+                                $row2 = $result2->fetch_assoc(); 
+                                $nickname = $row2['nickname']; 
+                                //echo $nickname;
+
+                                echo $row2['nickname']; ?>&nbsp;
+                                &nbsp;&nbsp;发布时间：
+                                <?php echo date("Y-m-d H:i:s",$row['pub_time'] ); ?>
+                            </p>
+                            <!-- 通过PHP获取用户名和 发布时间 注意时间格式 -->
+                        </div>
+                        <div class="count">
+                            <p>
+                                回复<br /><span>
+                                    <!-- sql查询得到回复数 -->
+                                    <?php 
+                                            $pub_id = $row['pub_id'];
+                                            $sqls = "select count(*) as sum from reply where rep_pub_id=$pub_id";
+                                            $results = $conn->query($sqls);
+                                            $row_num = $results->fetch_assoc(); 
+                                            $rowCount = $row_num['sum']; 
+                                            echo $rowCount;
+                                        ?>
+                                </span>
+                            </p>
+                            <p>
+                                浏览<br /><span>
+                                    <?php echo $row['pub_hits']; ?>
+                                </span>
+                            </p>
+                        </div>
+                        <div style="clear:both;"></div>
+                        <!-- 在左右两侧均不允许浮动元素。 否则布局会很乱 -->
+                    </li>
+                    <?php endWhile; ?>
+                    <!-- 在html中实现while循环 -->
+
+                </ul>
+            </div>
+            <div class="col-4" id="ccard">
+                <div class="card" style="width: 18rem;">
+                    <img class="avatar card-img-top" id="avatar" src="../static/assets/images/touxiang1.png" alt=""
+                        onclick="Person.func.uploadAvatar()">
+                    <div class="card-body">
+                        <?php
+                        $username = $_COOKIE['username'];
+                        $sql = "select * from user where username = '$username'";
+                        $nicknameResult = $conn->query($sql);
+                        if ($nicknameResult && $nicknameResult->num_rows > 0) {
+                            $row2 = $nicknameResult->fetch_assoc();
+                            $nickname = $row2['nickname'];
+                            $signature = $row2['signature'];
+                            $contact = $row2['contact'];
+                            echo '<h3 class="card-title">' . htmlspecialchars($nickname) . '</h3>';
+                        }
+                        echo '<h6 class="card-subtitle mb-2 text-muted">用户名：' . $username . '</h6>';
+                        echo '<p class="card-text">个性签名：' . $signature . '</p>';
+                        echo '<p class="card-text">联系方式：' . $contact . '</p>';
+                        ?>
+                        <button style="float: right;" type="button" id="edit" class="btn btn-secondary btn-sm"
+                            data-toggle="modal" data-target="#ModalPersonalInfo">
+                            编辑
+                        </button>
+                    </div>
+                </div>
+                <!-- 编辑时显示原来的个人信息 -->
+                <script>
+                    //去掉换行符 空格 否则可能会格式错误
+                    var urname = '<?php echo trim($_COOKIE["username"]); ?>';
+                    var signature = '<?php echo trim($signature); ?>';
+                    var nickname = '<?php echo trim($nickname); ?>';
+                    var contact = '<?php echo trim($contact); ?>';
+                    console.log(1)
+                    let buttons = document.querySelectorAll("#edit");
+                    buttons.forEach(button => {
+                        button.addEventListener("click", function () {
+                            let nicknameInput = document.querySelector("#nickname");
+
+                            nicknameInput.value = nickname;
+                            console.log(nickname)
+
+                            let sigInput = document.querySelector("#signature");
+                            sigInput.value = signature;
+                            let unameInput = document.querySelector("#uname");
+                            unameInput.value = urname;
+                            let contactInput = document.querySelector("#contact");
+                            contactInput.value = contact;
+                        });
+                    });
+                </script>
+                <!-- Modal 上传图像-->
+                <div class="modal fade" id="ModalUploadAvatar" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form action="/controls/uploadAvatar.php" method="post" enctype="multipart/form-data">
+                            <!-- 显示模态框 -->
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="exampleModalLabel">上传头像</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <img id="avatarPreview" src="" alt="头像预览" style="max-width: 100%;">
+                                    <div class="mb-3">
+                                        <label for="file" class="form-label">选择文件：</label>
+                                        <input type="file" class="form-control" name="file" id="file"
+                                            onchange="Person.func.compressor(event)">
+                                    </div>
+                                    <input type="hidden" name="username" id="username" value="">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <input type="submit" class="btn btn-primary" name="submit" value="提交">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal 发布帖子-->
+                <div class="modal fade" id="ModalPublish" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg"> <!-- Use modal-lg for a larger modal -->
+                        <form method="POST" action="/controls/publish_deal.php" enctype="multipart/form-data">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="exampleModalLabel">发布帖子</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="module_id">选择模块</label>
+                                        <select class="form-control" name="module_id">
+                                            <option>失物招领</option>
+                                            <option>寻物启事</option>
+                                            <option>其它</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pub_title">标题</label>
+                                        <input class="form-control" placeholder="请输入标题" name="pub_title" type="text" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pub_content">内容</label>
+                                        <textarea class="form-control" name="pub_content"
+                                            style="height: 250px;"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pub_image">上传图片</label>
+                                        <input type="file" class="form-control-file" name="pub_image" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <input type="submit" class="btn btn-primary" name="submit" value="提交">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- Modal 编辑个人信息-->
+                <div class="modal fade" id="ModalPersonalInfo" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form method="POST" action="/controls/personInfoEdit.php">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="exampleModalLabel">编辑个人信息</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="uname" id="uname" value="">
+                                    <div class="mb-3">
+                                        <label for="nickname" class="form-label">昵称：</label>
+                                        <input type="text" class="form-control" name="nickname" id="nickname" value="">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="signature" class="form-label">个性签名：</label>
+                                        <textarea id="signature" class="form-control" name="signature" rows="7"
+                                            cols="50"></textarea>
+                                    </div>
+                                    <br>
+                                    <div class="mb-3">
+                                        <label for="contacte" class="form-label">联系方式：</label>
+                                        <textarea id="contact" class="form-control" name="contact" rows="1"
+                                            cols="50"></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <input type="submit" class="btn btn-primary" name="submit" value="提交">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="pages_wrap">
+            <div class="pages">
+                <?php echo $strPage; ?>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="mask">
+        <div id="loading" class="spinner-border text-info" role="status">
+        </div>
+        <p class="tiplo">Loading...</p>
+    </div>
+
+
+    <!-- 初始化  启动JS中部分函数 -->
+    <script>Person.func.init();</script>
+    <script src="/static/pkg/bootstrap4.6.1/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

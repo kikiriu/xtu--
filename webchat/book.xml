@@ -1,0 +1,11 @@
+<?xml charset='utf-8'>
+<books>
+	<book>
+		<title>悲惨世界</title>
+		<author>雨果</author>
+	</book>
+	<book>
+		<title>红楼梦</title>
+		<author>曹雪芹</author>
+	</book>
+</books>

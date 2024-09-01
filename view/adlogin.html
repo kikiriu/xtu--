@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园失物招领系统</title>
+    <link rel="stylesheet" href="../static/pkg/bootstrap4.6.1/css/bootstrap.min.css">
+    <script src="../static/pkg/jquery3.7.0/jquery-3.7.0.min.js"></script>
+    <style>
+        .card {
+            margin: 10vh auto;
+            box-shadow: 2px 2px 12px 2px #ccc;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card" style="width: 18rem;">
+            <img src="../static/assets/images/wallhaven-7pr879.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">管理员登录</h5>
+                <form action="../controls/adlogin.php" method="post">
+                    <div class="form-group">
+                        <label>账号</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                            name="account">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">密码</label>
+                        <input type="password" class="form-control" id="exampleInputPassword1" name="a-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="../static/pkg/popper/popper.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>帖子详情</title>
+  <style>
+
+  </style>
+  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="stylesheet" href="../static/pkg/bootstrap4.6.1/css/bootstrap.min.css">
+  <script src="../static/pkg/jquery3.7.0/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/css/post.css" />
+</head>
+
+<body>
+  <div class="header">
+    <div class="h-main">
+      <div class="titleAndimage">
+        <a class="h-title" id="home" href='/controls/urindex.php?num=1&username=<?php echo $_COOKIE["username"]; ?>'>
+          校园失物招领
+          <img src="../static/assets/images/首页.png" alt="首页" width="30" height="30"></a>
+      </div>
+      <?php if (!isset($_COOKIE["account"])) : ?>
+      
+      <div class="nav-user">
+        <img src="../static/assets/images/登出.png" alt="some_text" width="35" height="35">
+        <div class="nav">
+          <a href="/controls/logout.php" target="_parent">退出</a>
+        </div>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+
+  <div class="auto">
+    <!-- 打印分页 -->
+    <div class="wrap1">
+      <div class="pages" style="margin: 0 auto;">
+        <?php echo $strPage; ?>
+      </div>
+    </div>
+    <div>
+      <?php  
+    $username = $_COOKIE['username'];$pub_id = $row['pub_id'];
+    $sql4 = "SELECT * FROM favorites WHERE username = '$username' AND pub_id = $pub_id";
+    $result4 = $conn->query($sql4);
+    if (!isset($_COOKIE["account"])){
+    if ($result4 && $result4->num_rows > 0){
+      echo '<button type="button" class="btn btn-success" id="favoriteButton" style="float: right;margin-left: 10px;margin-bottom: 15px;" onclick="deletefavorites()">
+        取消收藏
+      </button>';
+    }
+    else echo '<button type="button" class="btn btn-success" id="favoriteButton" style="float: right;margin-left: 10px; margin-bottom: 15px;" onclick="addfavorites()">
+      收藏
+    </button>';
+
+    if($row['status']=='生效中'&&$row['pub_owner']==$_COOKIE["username"])
+    echo '<button type="button" class="btn btn-secondary" id="favoriteButton" style="float: right;" onclick="overed()">
+      完结
+    </button>';
+    else if($row['status']=='已完结'&&$row['pub_owner']==$_COOKIE["username"])
+    echo '<button type="button" class="btn btn-secondary" id="favoriteButton" style="float: right;" onclick="notovered()">
+      取消完结
+    </button>';
+  }
+    ?>
+    </div>
+    <!-- 使用以下 JavaScript 代码来监听按钮的点击事件并执行 AJAX 请求： -->
+    <script>
+      var pub_id = "<?php echo $row['pub_id']; ?>"
+      window['addfavorites'] = function () {
+        window.location.href = '/controls/publisher_deal.php?pub_id=' + pub_id + "&action=收藏";
+      }
+      window['deletefavorites'] = function () {
+        window.location.href = '/controls/publisher_deal.php?pub_id=' + pub_id + "&action=取消收藏";
+      }
+      window['overed'] = function () {
+        window.location.href = '/controls/publisher_deal.php?pub_id=' + pub_id + "&action=完结";
+      }
+      window['notovered'] = function () {
+        window.location.href = '/controls/publisher_deal.php?pub_id=' + pub_id + "&action=取消完结";
+      }
+    </script>
+    <div style="clear:both;"></div>
+    <!-- Modal 查看用户信息-->
+    <div class="modal fade" id="ModalPersonalInfo" tabindex="-1" role="dialog" aria-labelledby="ModalPersonalInfoLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="ModalPersonalInfoLabel">用户信息</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card">
+              <div class="card-body">
+                <?php
+                $username = $publisher;
+                $sql = "select * from user where username = '$username'";
+                $nicknameResult = $conn->query($sql);
+                if ($nicknameResult && $nicknameResult->num_rows > 0) {
+                    $row2 = $nicknameResult->fetch_assoc();
+                    $nickname = $row2['nickname'];
+                    $signature = $row2['signature'];
+                    $contact = $row2['contact'];
+                    echo '<h3 class="card-title">' . htmlspecialchars($nickname) . '</h3>';
+                }
+                echo '<h6 class="card-subtitle mb-2 text-muted">用户名：' . $username . '</h6>';
+                echo '<p class="card-text">个性签名：' . $signature . '</p>';
+                echo '<p class="card-text">联系方式：' . $contact . '</p>';
+                ?>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php if($pageNum == 1) : ?>
+    <div class="wrapContent">
+      <div class="left">
+        <div class="face">
+          <a target="_blank" href="#">
+            <img id="publisher" width="120" height="120" src="" />
+          </a>
+          <!-- 点击楼主头像 -->
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {  //确保 JavaScript 代码在网页完全加载后执行
+              var openModalImage = document.getElementById('publisher');
+              var modalPersonalInfo = new bootstrap.Modal(document.getElementById('ModalPersonalInfo'));
+              var username = "<?php echo $publisher; ?>";
+              openModalImage.addEventListener('click', function (event) {
+                event.preventDefault();
+                modalPersonalInfo.show();
+              });
+            });
+          </script>
+        </div>
+        <div class="name">
+          <a href="">
+
+            <?php 
+            $sql2 = "SELECT * FROM user WHERE username = '{$row['pub_owner']}'";
+            //在双引号字符串中引用数组的值，需要使用花括号将数组引用括起来
+            $result2 = $conn->query($sql2);
+            $row2 = $result2->fetch_assoc(); 
+            echo $row2['nickname']; ?>
+            <?php echo '@'.$row['pub_owner']; ?>
+          </a>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="title">
+          <h1>
+            <?php echo $row['pub_title']; ?>
+          </h1>
+          <span>阅读：
+            <?php echo $row['pub_hits']; ?>&nbsp;|&nbsp;回复：
+            <?php echo $rowCount ?>
+            <?php if($row['changed']==1) echo '<b>已修改</b>';?>
+          </span>
+          <div style="clear:both;"></div>
+        </div>
+        <div class="pubdate">
+          <span class="date">发布于：
+            <?php echo date('Y-m-d H:i:s', $row['pub_time']);?>
+          </span>
+          <script>
+            var pub_id = "<?php echo $row['pub_id']; ?>"
+            window['deletepost'] = function () {
+              window.location.href = '/controls/post_deal.php?pub_id=' + pub_id + '&module_id=delete&isnotadmin=1';
+            }
+          </script>
+
+          <span class="floor" style="color:red;font-size:14px;font-weight:bold;">楼主</span>
+          <?php if ($row['pub_owner'] == $_COOKIE["username"]) : ?>
+          <button type="button" class="btn btn-danger btn-sm delete-button" onclick="deletepost()"
+            style="float: right;margin-left: 10px;">删除</button>
+
+          <button type="button" class="btn btn-secondary btn-sm btn-edit" data-toggle="modal"
+            data-target="#ModalPostedit" style="float: right;">
+            编辑
+          </button>
+          <?php endif; ?>
+        </div>
+        <div class="content">
+          <?php echo $row['pub_content']; ?>
+          <!-- 是否显示图像 -->
+          <?php if ($row['pub_image'] != null): ?>
+          <div class="pub_image">
+            <img src="<?php echo $row['pub_image']; ?>" style=" max-width: 45%" alt="帖子图片">
+          </div>
+          <?php endif; ?>
+        </div>
+      </div>
+      <div style="clear:both;"></div>
+    </div>
+    <?php endIf; ?>
+    <?php $index=0;   
+    $i=5*$pageNum-3;while($rep_row = $rep_result->fetch_assoc() ) :
+    $index++;  
+    $avatarId = "rep-avatar-" . $index;
+    
+    ?>
+    <script>
+      var rep_username = "<?php echo $rep_row['rep_user']; ?>";
+      axios.get("/controls/getAvatar.php?username=" + rep_username).then(function (res) {
+        let avatar = document.querySelector("#<?php echo $avatarId; ?>")
+        console.log(avatar)
+        avatar.src = res.data.avatar
+      })
+    </script>
+    <div class="wrapContent">
+      <div class="left">
+        <div class="face">
+          <a>
+            <img width="120" height="120" id="<?php echo $avatarId; ?>" src="" />
+          </a>
+        </div>
+        <div class="name">
+          <a href="">
+            <?php 
+            $sql3 = "SELECT * FROM user WHERE username = '{$rep_row['rep_user']}'";
+            $result3 = $conn->query($sql3);
+            $row3 = $result3->fetch_assoc(); 
+            
+            echo $row3['nickname']; ?>
+            <?php echo '@'.$rep_row['rep_user']; ?>
+          </a>
+        </div>
+      </div>
+      <div class="right">
+        <div class="pubdate">
+          <span class="date">
+            回复于：
+            <?php echo date('Y-m-d H:i:s', $rep_row['rep_time']); ?>
+          </span>
+          <script>
+            var rep_id = "<?php echo $rep_row['rep_id']; ?>";
+            function deleteComment() {
+              window.location.href = '/controls/deleteComment.php?rep_id=' + rep_id;
+            }
+          </script>
+          <span class="floor style=" float: right;"">
+            <?php echo $i++; ?>楼
+            <?php if($rep_row['changed']==1) echo '<b>已修改</b>';?>
+          </span>
+          <?php if (isset($_COOKIE["account"])) : ?>
+          <button type="button" class="btn btn-danger btn-sm delete-button" onclick="deleteComment()"
+            style="float: right;margin-left: 10px;">删除</button>
+          <?php endif; ?>
+          <?php if ($_COOKIE["username"]===$rep_row['rep_user']) : ?>
+          <button type="button" class="btn btn-danger btn-sm delete-button" onclick="deleteComment()"
+            style="float: right;margin-left: 10px;">删除</button>
+          <?php endif; ?>
+
+          <?php if ($_COOKIE["username"]==$rep_row['rep_user']) : ?>
+          <button type="button" id="<?php echo $rep_row['rep_id']; ?>" class="btn btn-secondary btn-sm edit-button"
+            onclick="startEdit(this)" style="float: right;">编辑</button>
+          <?php endif; ?>
+        </div>
+        <div class="content" id="content-<?php echo $rep_row['rep_id']; ?>">
+          <?php echo $rep_row['rep_content']; ?>
+        </div>
+      </div>
+      <!-- 修改评论 -->
+      <script>
+        function startEdit(editButton) {
+          //获取按钮所在的容器contentDiv的内容
+          var contentDiv = editButton.closest('.right').querySelector('.content');
+          var contentText = contentDiv.textContent.trim();
+
+          //创建编辑区并赋值 添加form-control类【Bootstrap】
+          //使用 DOM 操作，将原始内容的容器 contentDiv 替换为新创建的可编辑的 textarea
+          var textarea = document.createElement('textarea');
+          textarea.value = contentText;
+          textarea.classList.add('form-control');
+          contentDiv.parentNode.replaceChild(textarea, contentDiv);
+
+          // 创建保存按钮 点击时调用 saveEdit 函数
+          var saveButton = document.createElement('button');
+          saveButton.textContent = '保存';
+          saveButton.classList.add('btn', 'btn-primary', 'btn-sm', 'mr-1');
+          saveButton.onclick = function () {
+            var repId = editButton.id;
+            var content = textarea.value;
+            var pubid = "<?php echo $pub_id; ?>";
+            axios.post('/aips/editReply.php', {
+              rep_id: repId,
+              rep_content: content,
+              pub_id: pubid
+            }, {
+              headers: {
+                'Content-Type': 'application/json'  //确保数据以JSON格式发送
+              }
+            })
+              .then(function (response) {
+                // 实时更新内容
+                //response.data.status 和response.status==200是不同的 后者为自带
+                if (response.data.status == true) {
+                  textarea.parentNode.replaceChild(contentDiv, textarea);
+                  contentDiv.textContent = content;
+                  buttonGroup.parentNode.replaceChild(editButton, buttonGroup);
+                }
+                else if (response.data.error === "overed") {
+                  alert('很抱歉，此贴已完结！');
+                  window.location.reload();
+                }
+                else if (response.data.error === "banned") {
+                  alert('很抱歉，你已被封禁！');
+                  window.location.reload();
+                }
+              })
+              .catch(function (error) {
+                console.error('Error:', error);
+              });
+          };
+          // 创建取消按钮 点击时调用cancelEdit函数
+          var cancelButton = document.createElement('button');
+          cancelButton.textContent = '取消';
+          cancelButton.classList.add('btn', 'btn-secondary', 'btn-sm');
+          cancelButton.onclick = function () {
+            // cancelEdit(editButton, contentText);
+            buttonGroup.parentNode.replaceChild(editButton, buttonGroup);
+            textarea.parentNode.replaceChild(contentDiv, textarea);
+          };
+          //创建一个div元素 包装2个按钮，
+          var buttonGroup = document.createElement('div');
+          buttonGroup.classList.add('btn-group');
+          buttonGroup.style.float = 'right';
+          buttonGroup.appendChild(saveButton);
+          buttonGroup.appendChild(cancelButton);
+          //将原始的 "编辑" 按钮替换为新创建的按钮组
+          editButton.parentNode.replaceChild(buttonGroup, editButton);
+        }
+      </script>
+      <div style="clear:both;"></div>
+    </div>
+    <?php endWhile; ?>
+    <?php if (!isset($_COOKIE["account"])) : ?>
+    <button type="button" class="btn btn-primary" style="float: right;" data-toggle="modal" data-target="#ModalReply">
+      回复
+    </button>
+    <?php endif; ?>
+    <!-- 打印分页 -->
+    <div class="wrap1">
+      <div class="pages" style="margin: 0 auto;">
+        <?php echo $strPage; ?>
+      </div>
+      <div style="clear:both;"></div>
+    </div>
+  </div>
+
+  <!-- Modal 回复-->
+  <div class="modal fade" id="ModalReply" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" action="/controls/reply_deal.php">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="exampleModalLabel">回复</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Hidden input for pub_id -->
+            <input type="hidden" name="pub_id" value="<?php echo $pub_id; ?>">
+            <div class="mb-3">
+              <label for="rep_content" class="form-label">回复内容：</label>
+              <textarea name="rep_content" class="form-control" style="height: 250px;"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <input type="submit" class="btn btn-primary" name="submit" value="提交">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- 在HTML中使用if  使用：和endIf 只在第一页显示楼主的信息和帖子内容-->
+  <div style="clear:both;"></div>
+  </div>
+  </div>
+  <!-- Modal 修改帖子-->
+  <div class="modal fade" id="ModalPostedit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form method="POST" action="/controls/publish_deal.php" enctype="multipart/form-data">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="exampleModalLabel">编辑帖子</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <input value="<?php echo $row['pub_id']; ?>" name="reedit" type="hidden" id="pub_title" />
+              <label for="pub_title">标题</label>
+              <input class="form-control" value="<?php echo $row['pub_title']; ?>" placeholder="请输入标题" name="pub_title"
+                type="text" id="pub_title" />
+            </div>
+            <div class="form-group">
+              <label for="pub_content">内容</label>
+              <textarea class="form-control" name="pub_content" style="height: 250px;"
+                id="pub_content"><?php echo $row['pub_content']; ?></textarea>
+            </div>
+            <div class="form-group">
+              <label>操作：</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="image_action" id="action_nochange" value="nochange"
+                  checked>
+                <label class="form-check-label" for="action_nochange">
+                  不修改图片
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="image_action" id="action_upload" value="upload">
+                <label class="form-check-label" for="action_upload">
+                  上传图片
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="image_action" id="action_delete" value="delete">
+                <label class="form-check-label" for="action_delete">
+                  删除图片
+                </label>
+              </div>
+            </div>
+            <!-- 默认不显示 图片上传 -->
+            <div class="form-group" id="upload_image_group" style="display: none;">
+              <label for="pub_image">上传图片</label>
+              <input type="file" class="form-control-file" name="pub_image" accept="image/*">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <input type="submit" class="btn btn-primary" name="submit" value="提交">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    let edit_button = document.querySelector(".btn-edit");
+    edit_button.addEventListener("click", function () {
+      let imageActionRadios = document.getElementsByName("image_action");
+      for (let radio of imageActionRadios) {
+        radio.addEventListener("change", function () {
+          let uploadImageGroup = document.querySelector("#upload_image_group");
+          if (this.value === "upload") {
+            uploadImageGroup.style.display = "block";
+          } else {
+            uploadImageGroup.style.display = "none";
+          }
+        });
+      }
+    });
+  </script>
+
+  <script>
+    let deleteImageBtn = document.querySelector("#deleteImageBtn");
+    let pubImageInput = document.querySelector("[name='pub_image']");
+
+    deleteImageBtn.addEventListener("click", function () {
+      pubImageInput.value = ""; // Clear the file input value to remove the image
+    });
+  </script>
+
+  <!-- 顺序是jquery再popper.min.js再bootstrap.min.js -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../static/pkg/popper/popper.min.js"></script>
+  <script src="../static/pkg/bootstrap4.6.1/js/bootstrap.min.js"></script>
+  <script src="../static/pkg/js-cookie/js.cookie.min.js"></script>
+
+  <script>var publisher = "<?php echo $publisher; ?>";
+    axios.get("/controls/getAvatar.php?username=" + publisher).then(function (res) {
+      let avatar = document.querySelector("#publisher")
+      console.log(avatar)
+      avatar.src = res.data.avatar
+    })</script>
+</body>
+
+</html>

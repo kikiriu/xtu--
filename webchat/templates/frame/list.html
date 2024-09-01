@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+		body {
+			padding: 0;
+			margin: 0;
+			font-family: "微软雅黑";
+			overflow-y: hidden;
+			font-size: 14px;
+			opacity: 0.95;
+			color: #6E6F6F;
+		}
+
+		#wrap {
+			width: 200px;
+			background: #F8F9FA;
+			opacity: 0.85;
+		}
+
+		#top {
+			width: 100%;
+			height: 0px;
+			background: #E9E9E9;
+		}
+
+		ul {
+			list-style: none;
+			margin: 20px 10px;
+			padding: 0;
+		}
+
+		.user-list>li {
+			margin-bottom: 10px;
+		}
+
+		.user-list>li>img {
+			vertical-align: sub;
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+		}
+
+		.user-list>li>span {
+			margin-left: 15px;
+		}
+
+		.user-list {
+			white-space: nowrap;
+			height: 770px;
+			overflow-x: auto;
+		}
+
+		#user-num {
+			padding: 0px 20px;
+			height: 30px;
+			line-height: 30px;
+		}
+		#user-num:hover{
+			background-color: #ddd;
+		}
+		#user-num:active{
+			background-color: #5811f0;
+		}
+		.user-list li:hover {
+			background-color: #ddd;
+		}
+
+		.user-list li:active {
+			background-color: #5811f0;
+		}
+
+	</style>
+</head>
+
+<body>
+	<div id="wrap">
+		<div id="top">
+		</div>
+		<div id="user-num">
+			公共频道：<span></span>
+		</div>
+		<ul class="user-list" id="user-list">
+			<?php foreach($rows as $v):?>
+			<li><img src="<?php echo $v['avatar']?>" width="30px" /><span>
+					<?php echo $v['nickname']?>
+				</span></li>
+			<?php endforeach;?>
+		</ul>
+	</div>
+</body>
+
+</html>
+<script src="js/jquery-1.11.3.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+	function updateContentIframe(url) {
+	// document.querySelector('iframe[src="http://localhost/webchat/index.php?v=content"]').src = url;
+		// const iframe = document.getElementById('contentFrame');
+		const iframe = window.parent.document.getElementById('contentFrame');
+    	console.log(iframe); // 确保找到 iframe
+    	if (iframe) {
+    	    iframe.src = url;
+    	} else {
+    	    console.error("iframe element not found");
+    	}
+	}
+	function updateContentIframe_a(url) {
+	// document.querySelector('iframe[src="http://localhost/webchat/index.php?v=content"]').src = url;
+		// const iframe = document.getElementById('contentFrame');
+		const iframe = window.parent.document.getElementById('contentFrame_a');
+    	console.log(iframe); // 确保找到 iframe
+    	if (iframe) {
+    	    iframe.src = url;
+    	} else {
+    	    console.error("iframe element not found");
+    	}
+	}
+	$('#user-list li').click(function () {
+		$('#user-list li').css('background-color', '');
+		$('#user-num').css('background-color', '');
+
+		// 给当前点击的 li 添加背景颜色
+		$(this).css('background-color', '#e2e2e2');
+		var nickname = $(this).find('span').text().trim();
+		// alert('Nickname: ' + nickname);
+		updateContentIframe("<?php echo URL?>index.php?v=content&nickname=" + encodeURIComponent(nickname));
+		updateContentIframe_a("<?php echo URL?>index.php?v=send");
+		// $.post("<?php echo URL?>index.php?v=list", { nickname: nickname }, function (response) {
+		// 	// alert('Server response: ' + response);
+		// }).fail(function (xhr, status, error) {
+		// 	console.error('Error:', status, error);
+		// 	console.log('Response:', xhr.responseText);
+		// }).always(function () {
+		// 	console.log('Request complete');
+		// });
+		// window.location.href = "<?php echo URL?>index.php?v=content&nickname=" + encodeURIComponent(nickname);
+		
+		// 在点击事件中调用
+
+	});
+	$('#user-num').click(function () {
+		$('#user-list li').css('background-color', '');
+		$('#user-num').css('background-color', '#e2e2e2');
+		updateContentIframe("<?php echo URL?>index.php?v=content&flag=1");
+		updateContentIframe_a("<?php echo URL?>index.php?v=send");
+	});
+</script>

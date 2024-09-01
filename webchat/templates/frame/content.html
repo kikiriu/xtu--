@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style type="text/css">
+    body,
+    html {
+      overflow-x: hidden;
+      overflow-y: hidden;
+      margin: 0;
+      padding: 0;
+      font-family: "微软雅黑";
+    }
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* h3 {
+      height: 35px;
+      margin: 0;
+      padding-left: 10px;
+      background: #E9E9E9;
+      line-height: 35px;
+    } */
+
+    #wrap {
+      width: 650px;
+      height: 525px;
+    }
+
+    /* .title {
+      width: 100%;
+      position: fixed;
+      top: 0;
+      height: 30px;
+    } */
+
+    ul {
+      margin: 35px 0px;
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+      float: left;
+    }
+
+    .content-left {
+      height: 60px;
+
+    }
+
+    .content-left span,
+    .content-right span {
+      font-size: 14px;
+    }
+
+    .content-left p,
+    .content-right p {
+      background: #abcdef;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    .content>ul>li {
+      width: 100%;
+    }
+
+    .content>ul>li .user_headimg {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+
+    .content-left li:first-child {
+      max-width: 50px;
+      min-width: 20px;
+    }
+
+    .content-left li:nth-child(2) {
+      margin-left: 20px;
+    }
+
+    .content-right {
+      float: right;
+      height: 60px;
+    }
+
+    .content-right li {
+      float: right;
+    }
+
+    .content-right li:first-child {
+      max-width: 50px;
+      min-width: 20px;
+    }
+
+    .content-right li:nth-child(2) {
+      margin-right: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+
+    <div class="content">
+      <ul style="overflow-x:auto; height: 300px;padding: 0px 10px;" id="msg">
+
+        <?php foreach($rows as $v):?>
+        <li>
+          <ul <?php if($v['is_mine']){echo 'class="content-right"' ;}else{echo 'class="content-left"' ;}?>
+            style="overflow-x:auto;">
+            <li><img src="<?php echo $v['avatar']?>" alt="" width="50px" class="user_headimg" /></li>
+            <li>
+              <span>
+                <?php echo $v['nickname']?>
+              </span>
+              <p>
+                <?php echo htmlspecialchars($v['content']);?>
+              </p>
+            </li>
+          </ul>
+        </li>
+        <?php endforeach;?>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>
+<!-- <script src="js/jquery-1.11.3.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+  // var userid =<? php echo $_SESSION['userid'];?>
+  console.log('Request complete');
+  setInterval(function () {
+    $.get("<?php echo URL?>index.php?v=content",
+      function (data) {
+        console.log('Received data:', data);
+        var nr = '';
+        for (var i = 0; i < data.length; i++) {
+          nr += '<li><ul ';
+          if (data[i].is_mine == 1) {
+            nr += 'class="content-right"';
+          } else if (data[i].is_mine == 0) {
+            nr += 'class="content-left"';
+          }
+          nr += 'style="overflow-x:auto;">';
+          nr += '<li><img src="' + data[i].avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+          nr += '<li><span>' + data[i].nickname + '</span><p>' + data[i].content + '</p></li>';
+          nr += '</ul></li>';
+        }
+        $('#msg').html(nr);
+      }, 'json');
+  }, 10000);
+</script> -->
+<script src="js/jquery-1.11.3.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+      const ws = new WebSocket('ws://localhost:8080');
+      // const userid = <? php echo json_encode($_SESSION['userid']); ?>;
+      // const to_userid = <? php echo json_encode($_SESSION['to_userid']); ?>; // 目标用户ID
+      const avatar = <?php echo json_encode($_SESSION['avatar']); ?>;
+      const nickname = <?php echo json_encode($_SESSION['nickname']); ?>;
+      // const to_avatar = <?php echo json_encode($_SESSION['to_avatar']); ?>;
+      // const to_nickname = <?php echo json_encode($_SESSION['to_nickname']); ?>;
+      const userid = <?php echo json_encode($_SESSION['userid']); ?>;
+      ws.onopen = function () {
+        console.log('Connected to WebSocket server');
+      };
+    
+      ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        let nr = '';
+        nr += '<li><ul ';
+        if (data['userid'] === userid) {
+          nr += 'class="content-right"';
+          nr += 'style="overflow-x:auto;">';
+          nr += '<li><img src="' + avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+          nr += '<li><span>' + nickname + '</span><p>' + data.content + '</p></li>';
+          nr += '</ul></li>';
+        } else {
+          nr += 'class="content-left"';
+          nr += 'style="overflow-x:auto;">';
+          nr += '<li><img src="' + data.avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+          nr += '<li><span>' + data.nickname + '</span><p>' + data.content + '</p></li>';
+          nr += '</ul></li>';
+        }
+        // nr += 'style="overflow-x:auto;">';
+        // nr += '<li><img src="' + data[i].avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+        // nr += '<li><span>' + data[i].nickname + '</span><p>' + data.content + '</p></li>';
+        // nr += '</ul></li>';
+        $('#msg').append(nr);
+      
+        // displayMessages([data]);
+      };
+    
+      ws.onclose = function () {
+        console.log('Disconnected from WebSocket server');
+      };
+    
+      // 加载历史消息
+      
+    
+      // 页面加载时获取历史消息
+      
+</script>
