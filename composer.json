@@ -1,0 +1,14 @@
+{
+    "name": "wjm/bbs",
+    "description": "A WebSocket server for real-time chat application.",
+    "type": "library",
+    "require": {
+        "cboden/ratchet": "^0.4.4"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Wjm\\Bbs\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>校园失物招领系统</title>
+    <link rel="stylesheet" href="../static/pkg/bootstrap4.6.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/index.css">
+    <script src="../static/pkg/jquery3.7.0/jquery-3.7.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../static/pkg/bootstrap4.6.1/js/bootstrap.min.js"></script>
+    <script src="../static/pkg/popper/popper.min.js"></script>
+    <script src="../static/js/index.js"></script>
+    <script src="../static/pkg/js-cookie/js.cookie.min.js"></script>
+    <script src="../static/pkg/compressor/compressor.min.js"></script>
+    <!-- 压缩 -->
+    <script src="../static/js/person.js"></script> <!-- 显示Modal -->
+</head>
+
+<body>
+    <div class="header">
+        <div class="h-main">
+            <div class="titleAndimage">
+                <a class="h-title" id="home"> 校园失物招领
+                    <img src="../static/assets/images/首页.png" alt="首页" width="30" height="30"></a>
+            </div>
+            <form action="/controls/search.php ?>" class="search" method="get">
+                <input id="sea" name="search" autocomplete="off" placeholder="寻觅遗失的线索" type="text"
+                    style="outline: none;">
+
+                <!-- 去掉输入框获得焦点时的默认黑色边框 -->
+                <button type="submit" style="border: none;">
+                    <img src="../static/assets/images/搜索.png" alt="搜索" width="20" height="20">
+                </button>
+                <!-- 不显示历史选项 -->
+            </form>
+            <div class="nav-user">
+                <img src="../static/assets/images/登出.png" alt="some_text" width="35" height="35">
+                <div class="nav">
+                    <a href="/controls/logout.php" target="_parent">退出</a>
+                </div>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalPublish">
+                    我要发贴
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <ul class="lis">
+                    <!-- 发帖内容展示  php动态数据循环 li-->
+                    <?php 
+                    $index=0;                   
+                    while( $row = $result->fetch_assoc() ) : 
+                    $index++;  
+                    //使用索引来使得保证每个帖子的ID不一样
+                    $avatarId = "pub-avatar-" . $index;
+                    $username = $row['pub_owner'];
+                     ?>
+                    <script>
+                        var username = "<?php echo $username; ?>";
+                        axios.get("/controls/getAvatar.php?username=" + username).then(function (res) {
+                            let avatar = document.querySelector("#<?php echo $avatarId; ?>")
+                            console.log(avatar)
+                            avatar.src = res.data.avatar
+                        })</script>
+                    <li>
+                        <div class="lis-avatar">
+                            <a href="#">
+                                <img width="45" height="45" id="<?php echo $avatarId; ?>"
+                                    src="/static//assets/images/uer.jpg">
+                            </a>
+                        </div>
+                        <div class="subject">
+                            <div class="titleWrap">
+                                <a href="#">[分类]</a>&nbsp;&nbsp;
+                                <h2><a href="./detail.php?pub_id=<?php echo $row['pub_id']; ?>">
+                                        <?php echo $row['pub_title']; ?>
+                                    </a>
+                                </h2>
+                            </div>
+                            <p>
+                                楼主：
+                                <?php echo $row['pub_owner']; ?>&nbsp;
+                                &nbsp;&nbsp;发布时间：
+                                <?php echo date("Y-m-d H:i:s",$row['pub_time'] ); ?>
+                            </p>
+                            <!-- 通过PHP获取用户名和 发布时间 注意时间格式 -->
+                        </div>
+                        <div class="count">
+                            <p>
+                                回复<br /><span>
+                                    <!-- sql查询得到回复数 -->
+                                    <?php 
+                                            $pub_id = $row['pub_id'];
+                                            $sqls = "select count(*) as sum from reply where rep_pub_id=$pub_id";
+                                            $results = $conn->query($sqls);
+                                            $row_num = $results->fetch_assoc(); 
+                                            $rowCount = $row_num['sum']; 
+                                            echo $rowCount;
+                                        ?>
+                                </span>
+                            </p>
+                            <p>
+                                浏览<br /><span>
+                                    <?php echo $row['pub_hits']; ?>
+                                </span>
+                            </p>
+                        </div>
+                        <div style="clear:both;"></div>
+                        <!-- 在左右两侧均不允许浮动元素。 否则布局会很乱 -->
+                    </li>
+                    <?php endWhile; ?>
+                    <!-- 在html中实现while循环 -->
+
+                </ul>
+                <!-- <ul class="lis">
+                        <li class="lis-li">
+                            <a href="" class="lis-avatar">
+                                <img src="../static/assets/images/uer.jpg" alt="">
+                            </a>
+                            <h2 class="tip">
+                                <a href="detail.html"> 失物招领 </a>
+                            </h2>
+                            <p>
+                                <span><a href="">用户</a></span>
+                                <span>30分钟前</span>
+                                <span class="lis-hint">
+                                </span>
+                            </p>
+                        </li>
+                    </ul> -->
+            </div>
+            <div class="col-4" id="ccard">
+                <div class="card" style="width: 18rem;">
+                    <img class="avatar" id="avatar" src="../upload/avatar/wallhaven-9drqlw.jpg" alt=""
+                        onclick="Person.func.uploadAvatar()">
+                    <!-- 交互1 -->
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                        <h6 class="card-subtitle mb-2 text-muted">用户名</h6>
+                        <span class="badge badge-primary">Primary</span>
+                        <p class="card-text">个人简介：Some quick example text to build on the card title and make up the
+                            bulk of the card's content.</p>
+                        <a href="#" class="card-link">link</a>
+                    </div>
+                </div>
+
+                <!-- Modal 上传图像-->
+                <div class="modal fade" id="ModalUploadAvatar" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form action="/controls/uploadAvatar.php" method="post" enctype="multipart/form-data">
+                            <!-- 显示模态框 -->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">上传头像</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <img id="avatarPreview" src="" alt="" srcset=""> <!-- 头像预览 -->
+                                    <p>
+                                        <label for="file">文件名：</label>
+                                        <input type="file" name="file" id="file"
+                                            onchange="Person.func.compressor(event)">
+                                        <!-- 必须写为event 传入事件 -->
+                                        <input type="hidden" name="username" id="username" value="">
+                                        <!-- 隐藏username的输入框 使用cookie -->
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <input type="submit" class="btn btn-primary" name="submit" value="提交">
+                                    <!-- 直接把框架的类复制过来class="btn btn-secondary -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal 发布帖子-->
+                <div class="modal fade" id="ModalPublish" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form method="POST" action="/controls/publish_deal.php">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">发布帖子</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <select name="module_id">
+                                        <option>失物招领</option>
+                                        <option>寻物启事</option>
+                                    </select>
+                                    <input class="title" placeholder="请输入标题" name="pub_title" type="text" />
+                                    <br><br>
+                                    <textarea name="pub_content" class="content"
+                                        style="height: 250px;width: 400px;"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <input type="submit" class="btn btn-primary" name="submit" value="提交">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- 分页待改 -->
+        <div class="pages_wrap">
+            <div class="pages">
+                <?php echo $strPage; ?>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="mask">
+        <div id="loading" class="spinner-border text-info" role="status">
+        </div>
+        <p class="tiplo">Loading...</p>
+    </div>
+
+
+    <!-- 初始化  启动JS中部分函数 -->
+    <script>Person.func.init();</script>
+
+</body>
+
+</html>

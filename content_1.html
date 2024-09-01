@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="wrap">
+        <div class="content">
+            <ul style="overflow-x:auto; height: 300px;padding: 0px 10px;" id="msg">
+                <!-- 消息将通过 JavaScript 动态添加到这里 -->
+            </ul>
+        </div>
+        <input type="text" id="message" placeholder="Type your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        const userid = <? php echo json_encode($_SESSION['userid']); ?>;
+        const to_userid = <? php echo json_encode($_SESSION['to_userid']); ?>; // 目标用户ID
+        const avatar = <? php echo json_encode($_SESSION['avatar']); ?>;
+        const nickname = <? php echo json_encode($_SESSION['nickname']); ?>;
+        const to_avatar = <? php echo json_encode($_SESSION['to_avatar']); ?>;
+        const to_nickname = <? php echo json_encode($_SESSION['to_nickname']); ?>;
+        ws.onopen = function () {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            let nr = '';
+            nr += '<li><ul ';
+            if (data['userid'] === userid) {
+                nr += 'class="content-right"';
+                nr += 'style="overflow-x:auto;">';
+                nr += '<li><img src="' + avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+                nr += '<li><span>' + nickname + '</span><p>' + data.content + '</p></li>';
+                nr += '</ul></li>';
+            } else {
+                nr += 'class="content-left"';
+                nr += 'style="overflow-x:auto;">';
+                nr += '<li><img src="' + to_avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+                nr += '<li><span>' + to_nickname + '</span><p>' + data.content + '</p></li>';
+                nr += '</ul></li>';
+            }
+            // nr += 'style="overflow-x:auto;">';
+            // nr += '<li><img src="' + data[i].avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+            // nr += '<li><span>' + data[i].nickname + '</span><p>' + data.content + '</p></li>';
+            // nr += '</ul></li>';
+            $('#msg').append(nr);
+
+            // displayMessages([data]);
+        };
+
+        ws.onclose = function () {
+            console.log('Disconnected from WebSocket server');
+        };
+
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            const data = {
+                userid: userid,
+                to_userid: to_userid,
+                content: message
+            };
+            ws.send(JSON.stringify(data));
+            document.getElementById('message').value = '';
+        }
+
+        // 加载历史消息
+        function loadMessages() {
+            $.get("get_messages.php", { to_userid: to_userid }, function (data) {
+                displayMessages(data);
+            }, 'json');
+        }
+
+        // 显示消息
+        function displayMessages(data) {
+            let nr = '';
+            for (let i = 0; i < data.length; i++) {
+                nr += '<li><ul ';
+                if (data[i].userid === userid) {
+                    nr += 'class="content-right"';
+                } else {
+                    nr += 'class="content-left"';
+                }
+                nr += 'style="overflow-x:auto;">';
+                nr += '<li><img src="' + data[i].avatar + '" alt="" width="50px" class="user_headimg"/></li>';
+                nr += '<li><span>' + data[i].nickname + '</span><p>' + data[i].content + '</p></li>';
+                nr += '</ul></li>';
+            }
+            $('#msg').html(nr);
+        }
+
+        // 页面加载时获取历史消息
+        $(document).ready(function () {
+            loadMessages();
+        });
+    </script>
+</body>
+
+</html>
