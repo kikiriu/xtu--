@@ -1,0 +1,6 @@
+1 配置好xmapp 启动 apache和 mysql
+2 用户端：https://localhost:8088/view/loor.html
+   管理端   https://localhost:8088/view/adlogin.html
+
+3 数据库管理  http://localhost:8688/phpmyadmin/index.php?route=/server/databases
+ root  空
